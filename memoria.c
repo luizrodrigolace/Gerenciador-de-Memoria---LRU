@@ -17,23 +17,56 @@ typedef struct{
     int tempoNaMemoria;
 }Pagina;
 
-// Vetor das memorias principal e secundaria
-struct Pagina memoria_principal[TAMANHO_MEMORIA_PRIMARIA];
-struct Pagina memoria_secundaria[TAMANHO_MEMORIA_SECUNDARIA];
+typedef struct{
+    int posMP;
+    bool isInMP;
+}Tabela;
 
+// Vetor das memorias principal e secundaria
+Pagina memoria_principal[TAMANHO_MEMORIA_PRIMARIA];
+Tabela tabela_de_paginas[QUANT_THREADS][QUANT_PAGINAS];
 
 int main( int argc, char *argv[ ] ){
-    int indiceProcessoDasPaginas[20];
-
+    //int workingSet[20];
+    int posMP = 0;
 
     //gerando processos
     for (int i = 0; i<QUANT_THREADS;i++){
-        Pagina pagina;
-        pagina.idProcesso = i;
-        pagina.idPagina = rand() % 50;
-        pagina.tempoNaMemoria = 0;
+        //gerando paginas dos processos existentes até então
+        for (int j = 0; j<=i; j++){
+            Pagina pagina;
+            pagina.idProcesso = j;
+            pagina.idPagina = rand() % 50;
+            pagina.tempoNaMemoria = 0;
+            memoria_principal[posMP] = pagina;
+            printf("Colocando a pagina %d do processo %d na posição %d da MP\n",memoria_principal[posMP].idPagina,memoria_principal[posMP].idProcesso,posMP);
+            posMP++;
+        }
         sleep(3);
+        printf("\n");
     }
+    // continuando após a criação de todos os processos
+    for(int i = 0; i<64;i++){
+            Pagina pagina;
+            pagina.idProcesso = i;
+            pagina.idPagina = rand() % 50;
+            pagina.tempoNaMemoria = 0;
+            memoria_principal[posMP] = pagina;
+            printf("Colocando a pagina %d do processo %d na posição %d da MP\n",memoria_principal[posMP].idPagina,memoria_principal[posMP].idProcesso,posMP);
+            posMP++;
+            sleep(3);
+    }
+
+
+
+    // gera um processo a cada 3s, cada processo gera uma pagina aleatoria a cada 3s - ok
+    // randomiza uma pagina (0-49) do processo e coloca na MP - ok
+    // atualiza as paginas de cada processo na MP (LRU)
+    // Faz isso até a MP ficar cheia 
+    // Quando a MP ficar cheia,
+    // tira a pagina do processo mais antigo da MP e coloca na MV
+    // ??????????????????
+    // criterio de parada: ??
 
     return 0;
 }
