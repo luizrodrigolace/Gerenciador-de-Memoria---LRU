@@ -41,6 +41,14 @@ void printaMatriz (Tabela matriz[QUANT_THREADS][QUANT_PAGINAS]){
     }
 }
 
+//metodo para verificar se uma dada pagina já se encontra na MP
+bool verificaPaginaNaMP(Pagina pagina,Tabela matriz[QUANT_THREADS][QUANT_PAGINAS]){
+    if(matriz[pagina.idProcesso][pagina.idPagina].isInMP == 1){
+        return true;
+    }
+    return false;
+}
+
 // Vetor das memorias principal e secundaria
 Pagina memoria_principal[TAMANHO_MEMORIA_PRIMARIA];
 Tabela tabela_de_paginas[QUANT_THREADS][QUANT_PAGINAS];
@@ -53,27 +61,33 @@ int main( int argc, char *argv[ ] ){
     for (int i = 0; i<QUANT_THREADS;i++){
         //gerando paginas dos processos existentes até então
         for (int j = 0; j<=i; j++){
-            memoria_principal[posMP] = criaPaginaAleatoria(j);
+            Pagina pagina = criaPaginaAleatoria(j);
+            //verificando se a pagina se encontra na MP
+            if(verificaPaginaNaMP(pagina,tabela_de_paginas)){
+                memoria_principal[tabela_de_paginas[pagina.idProcesso][pagina.idPagina].posMP].tempoNaMemoria = 0;
+                printf("O processo %d pediu para alocar a pagina %d, que já estava na MP. Tempo atualizado\n",j,pagina.idPagina);
+                continue;
+            }
+
+            memoria_principal[posMP] = pagina;
             //marcando na tabela qual pagina de qual processo está na MP
             tabela_de_paginas[j][memoria_principal[posMP].idPagina].isInMP = 1;
             tabela_de_paginas[j][memoria_principal[posMP].idPagina].posMP = posMP;
 
             printf("Colocando a pagina %d do processo %d na posição %d da MP\n",memoria_principal[posMP].idPagina,memoria_principal[posMP].idProcesso,posMP);
-            printaMatriz(tabela_de_paginas);
-
             
             posMP++;
             if (posMP > TAMANHO_MEMORIA_PRIMARIA - 1){
                 break;
             }
         }
-
+        //printaMatriz(tabela_de_paginas);
+        //sleep(3);
+        //system("clear");
+        printf("\n");
         if (posMP > TAMANHO_MEMORIA_PRIMARIA - 1 ){
                 break;
         }
-
-        //sleep(3);
-        printf("\n");
     }
 
     // continuando após a criação de todos os processos
