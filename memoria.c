@@ -17,6 +17,7 @@ typedef struct{
     int tempoNaMemoria;
 }Pagina;
 
+// Estrutura para a tabela de processos/paginas
 typedef struct{
     int posMP;
     int isInMP;
@@ -26,7 +27,7 @@ Pagina criaPaginaAleatoria(int processo){
     Pagina pagina;
     pagina.idProcesso = processo;
     pagina.idPagina = rand() % QUANT_PAGINAS;
-    pagina.tempoNaMemoria = 0;
+    pagina.tempoNaMemoria=0;
 
     return pagina;
 }
@@ -49,6 +50,13 @@ bool verificaPaginaNaMP(Pagina pagina,Tabela matriz[QUANT_THREADS][QUANT_PAGINAS
     return false;
 }
 
+// varrendo o vetor da MP e adicionando uma unidade de tempo em todas as paginas
+void adicionaTempo(int pos, Pagina MP[TAMANHO_MEMORIA_PRIMARIA]){
+    for (int i = 0; i<pos;i++ ){
+        MP[i].tempoNaMemoria += 1;
+    }
+}
+
 // Vetor das memorias principal e secundaria
 Pagina memoria_principal[TAMANHO_MEMORIA_PRIMARIA];
 Tabela tabela_de_paginas[QUANT_THREADS][QUANT_PAGINAS];
@@ -62,6 +70,7 @@ int main( int argc, char *argv[ ] ){
         //gerando paginas dos processos existentes até então
         for (int j = 0; j<=i; j++){
             Pagina pagina = criaPaginaAleatoria(j);
+
             //verificando se a pagina se encontra na MP
             if(verificaPaginaNaMP(pagina,tabela_de_paginas)){
                 memoria_principal[tabela_de_paginas[pagina.idProcesso][pagina.idPagina].posMP].tempoNaMemoria = 0;
@@ -74,6 +83,8 @@ int main( int argc, char *argv[ ] ){
             tabela_de_paginas[j][memoria_principal[posMP].idPagina].isInMP = 1;
             tabela_de_paginas[j][memoria_principal[posMP].idPagina].posMP = posMP;
 
+            //adicionando unidade de tempo nas paginas presentes na MP
+
             printf("Colocando a pagina %d do processo %d na posição %d da MP\n",memoria_principal[posMP].idPagina,memoria_principal[posMP].idProcesso,posMP);
             
             posMP++;
@@ -81,6 +92,11 @@ int main( int argc, char *argv[ ] ){
                 break;
             }
         }
+
+        for(int i = 0; i<posMP; i++){
+            printf("Pagina %d do processo %d com tempo %d\n",memoria_principal[i].idPagina,memoria_principal[i].idProcesso,memoria_principal[i].tempoNaMemoria);
+        }
+        adicionaTempo(posMP,memoria_principal);
         //printaMatriz(tabela_de_paginas);
         //sleep(3);
         //system("clear");
