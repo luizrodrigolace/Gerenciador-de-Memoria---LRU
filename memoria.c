@@ -3,7 +3,7 @@
 #include 	<stdbool.h>
 #include 	<time.h>
 
-#define TAMANHO_MEMORIA_PRIMARIA 36
+#define TAMANHO_MEMORIA_PRIMARIA 64
 #define TAMANHO_MEMORIA_SECUNDARIA 16
 #define QUANT_THREADS 20
 #define QUANT_PAGINAS 50
@@ -123,7 +123,7 @@ int main( int argc, char *argv[ ] ){
                 tabela_de_paginas[memoria_principal[indiceNaMp].idProcesso][memoria_principal[indiceNaMp].idPagina].isInMS = 1;
                 // pagina nova MP = 1 na tabela
                 memoria_principal[indiceNaMp] = pagina;
-                tabela_de_paginas[pagina.idProcesso][pagina.idProcesso].isInMP = 1;
+                tabela_de_paginas[pagina.idProcesso][pagina.idPagina].isInMP = 1;
 
                 printf("%d do processo %d \n",memoria_principal[indiceNaMp].idPagina,memoria_principal[indiceNaMp].idProcesso);
             }
@@ -136,14 +136,15 @@ int main( int argc, char *argv[ ] ){
         for(int i = 0; i<posMP; i++){
             printf("Pagina %d do processo %d com tempo %d\n",memoria_principal[i].idPagina,memoria_principal[i].idProcesso,memoria_principal[i].tempoNaMemoria);
         }
+
+        if (posMP > TAMANHO_MEMORIA_PRIMARIA - 1 ){
+            break;
+        }
         adicionaTempo(posMP,memoria_principal);
         printaMatriz(tabela_de_paginas);
         //sleep(3);
         //system("clear");
         printf("\n");
-        if (posMP > TAMANHO_MEMORIA_PRIMARIA - 1 ){
-                break;
-        }
     }
 
     // continuando após a criação de todos os processos
