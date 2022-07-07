@@ -28,7 +28,7 @@ Pagina criaPaginaAleatoria(int processo){
     Pagina pagina;
     pagina.idProcesso = processo;
     pagina.idPagina = rand() % QUANT_PAGINAS;
-    pagina.tempoNaMemoria=0;
+    pagina.tempoNaMemoria = 0;
 
     return pagina;
 }
@@ -58,9 +58,26 @@ void adicionaTempo(int pos, Pagina MP[TAMANHO_MEMORIA_PRIMARIA]){
     }
 }
 
+int indiceDaPaginaMaisAntiga(int processo, Tabela tabela[QUANT_THREADS][QUANT_PAGINAS], Pagina MP[TAMANHO_MEMORIA_PRIMARIA]){
+    int indiceNaMp;
+    int tempo = 0;
+    for(int page=0; page<50; page++){
+        //caso a pagina esteja na MP
+        if(tabela[processo][page].isInMP){
+            //verificando qual delas possui o maior tempo
+            if (MP[tabela[processo][page].posMP].tempoNaMemoria > tempo){
+                indiceNaMp = tabela[processo][page].posMP;
+                tempo = MP[tabela[processo][page].posMP].tempoNaMemoria;
+            }
+        }
+    }
+    return indiceNaMp;
+}
+
 // Vetor das memorias principal e secundaria
 Pagina memoria_principal[TAMANHO_MEMORIA_PRIMARIA];
 Tabela tabela_de_paginas[QUANT_THREADS][QUANT_PAGINAS];
+
 
 int main( int argc, char *argv[ ] ){
 
@@ -74,7 +91,8 @@ int main( int argc, char *argv[ ] ){
 
     //gerando processos de 0 até 19
     for (int i = 0; i<QUANT_THREADS;i++){
-        //gerando paginas dos processos existentes até então
+        //gerando paginas dos i processos existentes até então
+
         for (int j = 0; j<=i; j++){
             Pagina pagina = criaPaginaAleatoria(j);
 
@@ -100,23 +118,31 @@ int main( int argc, char *argv[ ] ){
             }
             // fazendo LRU
             else{
-                printf("O processo %d já possui 4 paginas na MP, é necessario fazer LRU\n",j);
-                int indiceNaMp = 0;
+                //printf("O processo %d já possui 4 paginas na MP, é necessario fazer LRU\n",j);
+
+                // procurando onde na MP está a pagina mais antiga do processo j
+                int indiceNaMp;
                 int tempo = 0;
                 for(int page=0; page<50; page++){
                     //caso a pagina esteja na MP
                     if(tabela_de_paginas[j][page].isInMP){
                         //verificando qual delas possui o maior tempo
+                        //printf("Processo %d, Pagina: %d, Tempo: %d\n", memoria_principal[tabela_de_paginas[j][page].posMP].idProcesso,memoria_principal[tabela_de_paginas[j][page].posMP].idPagina,memoria_principal[tabela_de_paginas[j][page].posMP].tempoNaMemoria);
+                        
                         if (memoria_principal[tabela_de_paginas[j][page].posMP].tempoNaMemoria > tempo){
-                            indiceNaMp = tabela_de_paginas[j][page].posMP;
                             tempo = memoria_principal[tabela_de_paginas[j][page].posMP].tempoNaMemoria;
+                            indiceNaMp = tabela_de_paginas[j][page].posMP;
                         }
                     }
                 }
 
+                //printf("Pagina: %d, Processo: %d\n",memoria_principal[indiceNaMp].idPagina,memoria_principal[indiceNaMp].idProcesso);
+                //printf("Pagina: %d, Processo: %d\n",memoria_principal[indiceDaPaginaMaisAntiga(j,tabela_de_paginas,memoria_principal)].idPagina,memoria_principal[indiceDaPaginaMaisAntiga(j,tabela_de_paginas,memoria_principal)].idProcesso);
+
+
                 // pega pagina na MP a ser substituida
                 // coloca pagina nova nessa posicao
-                printf("LRU feito, pagina %d do processo %d substituida pela pagina ", memoria_principal[indiceNaMp].idPagina, memoria_principal[indiceNaMp].idProcesso);
+                printf("LRU: Pagina %d; Processo: %d -> ", memoria_principal[indiceNaMp].idPagina, memoria_principal[indiceNaMp].idProcesso);
 
                 // pagina antiga  MP = 0 , MS = 1 na tabela
                 tabela_de_paginas[memoria_principal[indiceNaMp].idProcesso][memoria_principal[indiceNaMp].idPagina].isInMP = 0;
@@ -125,7 +151,7 @@ int main( int argc, char *argv[ ] ){
                 memoria_principal[indiceNaMp] = pagina;
                 tabela_de_paginas[pagina.idProcesso][pagina.idPagina].isInMP = 1;
 
-                printf("%d do processo %d \n",memoria_principal[indiceNaMp].idPagina,memoria_principal[indiceNaMp].idProcesso);
+                printf(" Pagina: %d; Processo %d \n",memoria_principal[indiceNaMp].idPagina,memoria_principal[indiceNaMp].idProcesso);
             }
     
             if (posMP > TAMANHO_MEMORIA_PRIMARIA - 1){
