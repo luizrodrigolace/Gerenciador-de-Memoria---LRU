@@ -4,7 +4,7 @@
 #include 	<time.h>
 
 #define TAMANHO_MEMORIA_PRIMARIA 64
-#define TAMANHO_MEMORIA_SECUNDARIA 16
+//#define TAMANHO_MEMORIA_SECUNDARIA 16
 #define QUANT_THREADS 20
 #define QUANT_PAGINAS 50
 #define MAX_WORKSET 4
@@ -24,6 +24,7 @@ typedef struct{
     int isInMS;
 }Tabela;
 
+//Metodo para a criação de paginas aleatoria de um determinado processo
 Pagina criaPaginaAleatoria(int processo){
     Pagina pagina;
     pagina.idProcesso = processo;
@@ -33,12 +34,12 @@ Pagina criaPaginaAleatoria(int processo){
     return pagina;
 }
 
-// imprimindo o conteúdo da matriz
-void printaMatriz (Tabela matriz[QUANT_THREADS][QUANT_PAGINAS]){
+// imprimindo o conteúdo da matriz (tempo na MP de cada pagina)
+void printaMatriz (Tabela matriz[QUANT_THREADS][QUANT_PAGINAS],Pagina MP[TAMANHO_MEMORIA_PRIMARIA]){
     for (int i = 0; i < QUANT_THREADS; i++) { //para as linhas
         for (int j = 0; j < QUANT_PAGINAS; j++) { //para as colunas
             if(matriz[i][j].isInMP){
-                printf("\033[37m\033[42m%d\033[0m ", matriz[i][j].isInMP);
+                printf("\033[37m\033[42m%d\033[0m ", MP[matriz[i][j].posMP].tempoNaMemoria);
             }
             else{
                 printf("%d ",matriz[i][j].isInMP);
@@ -159,12 +160,8 @@ int main( int argc, char *argv[ ] ){
                 //andando com a posicao da MP
                 posMP++;
 
+                // caso a memoria lote
                 if (posMP == TAMANHO_MEMORIA_PRIMARIA){
-                    printf("Processos: %d / %d\n",j,i);
-                    for (int i = 0 ; i < TAMANHO_MEMORIA_PRIMARIA ; i++){
-                        printf("%d ", memoria_principal[i].idProcesso);
-                    }
-                    printf("\n");
                     break;
                 }
             }
@@ -191,35 +188,30 @@ int main( int argc, char *argv[ ] ){
                 tabela_de_paginas[pagina.idProcesso][pagina.idPagina].isInMP = 1;
                 tabela_de_paginas[pagina.idProcesso][pagina.idPagina].isInMS = 0;
                 tabela_de_paginas[pagina.idProcesso][pagina.idPagina].posMP = indiceNaMp;
-                printf(" Pagina: %d; Processo %d \n",memoria_principal[indiceNaMp].idPagina,memoria_principal[indiceNaMp].idProcesso);
+                printf(" Pagina: %d; Processo %d \n", memoria_principal[indiceNaMp].idPagina, memoria_principal[indiceNaMp].idProcesso);
 
                 if(estavaNaMS){
-                    printf("(A pagina %d do processo %d estava na MS e voltou para a MP)\n", pagina.idPagina,pagina.idProcesso);
+                    printf("(A pagina %d do processo %d estava na MS e voltou para a MP)\n", pagina.idPagina, pagina.idProcesso);
                 }
             }
         }
-
-        printf("\n");
-
-        for(int i = 0; i<posMP; i++){
-            printf("Pagina %d do processo %d com tempo %d\n",memoria_principal[i].idPagina,memoria_principal[i].idProcesso,memoria_principal[i].tempoNaMemoria);
-        }
-        
-
         if (posMP == TAMANHO_MEMORIA_PRIMARIA){
             break;
         }
+
+        printf("\n");
+        for(int i = 0; i<posMP; i++){
+            printf("Pagina %d do processo %d com tempo %d\n",memoria_principal[i].idPagina, memoria_principal[i].idProcesso, memoria_principal[i].tempoNaMemoria);
+        }
+
+        printaMatriz(tabela_de_paginas,memoria_principal);
         adicionaTempo(posMP,memoria_principal);
-        printaMatriz(tabela_de_paginas);
+        
         printf("\n\n\n");
 
         //sleep(3);
         //system("clear");
         printf("\n");
-    }
-
-    for (int i = 0 ; i < QUANT_THREADS ; i++){
-        printf("%d ", workingSetLimit[i]);
     }
 
     // ---------------------------instante de tempo quando a memoria encheu---------------------------
@@ -254,9 +246,16 @@ int main( int argc, char *argv[ ] ){
             //adicionando unidade de tempo nas paginas presentes na MP
             printf("Colocando a pagina %d do processo %d na posição %d da MP\n",memoria_principal[maisAntigaNaMP].idPagina, memoria_principal[maisAntigaNaMP].idProcesso, maisAntigaNaMP);
         }
-        
     }
+
+    for(int i = 0; i<posMP; i++){
+        printf("Pagina %d do processo %d com tempo %d\n",memoria_principal[i].idPagina, memoria_principal[i].idProcesso, memoria_principal[i].tempoNaMemoria);
+    }
+    printf("\n");
+    printaMatriz(tabela_de_paginas,memoria_principal);
     adicionaTempo(64,memoria_principal);
+    printf("\n\n\n");
+
 
     //---------------------------------criar processos 18 e 19----------------------------------
     for (int i = 18; i<QUANT_THREADS;i++){
@@ -335,9 +334,9 @@ int main( int argc, char *argv[ ] ){
         for(int i = 0; i<64; i++){
             printf("Pagina %d do processo %d com tempo %d\n",memoria_principal[i].idPagina,memoria_principal[i].idProcesso,memoria_principal[i].tempoNaMemoria);
         }
-
+        printaMatriz(tabela_de_paginas,memoria_principal);
         adicionaTempo(64,memoria_principal);
-        printaMatriz(tabela_de_paginas);
+        
         printf("\n\n\n");
 
         //sleep(3);
@@ -424,7 +423,7 @@ int main( int argc, char *argv[ ] ){
         }
 
         adicionaTempo(64,memoria_principal);
-        printaMatriz(tabela_de_paginas);
+        printaMatriz(tabela_de_paginas,memoria_principal);
         printf("\n\n\n");
 
         sleep(3);
