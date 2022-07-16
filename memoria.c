@@ -168,13 +168,13 @@ int main( int argc, char *argv[ ] ){
             // fazendo LRU
             else{
                 //log
-                printf("Processo %d: já possui 4 paginas na MP, é necessario fazer LRU\n",j);
+                printf("Processo %d: já possui 4 paginas na MP\n",j);
 
                 // procurando onde na MP está a pagina mais antiga do processo j
                 int indiceNaMp = indiceDaPaginaMaisAntiga(j,tabela_de_paginas,memoria_principal);
                 
                 //log
-                printf("LRU: Pagina %d vai para MS -> ", memoria_principal[indiceNaMp].idPagina);
+                printf("Pagina %d vai para MS -> ", memoria_principal[indiceNaMp].idPagina);
 
                 // tirando a pagina antiga da MP 
                 tabela_de_paginas[memoria_principal[indiceNaMp].idProcesso][memoria_principal[indiceNaMp].idPagina].isInMP = 0;
@@ -312,11 +312,11 @@ int main( int argc, char *argv[ ] ){
 
             // fazendo LRU
             else{
-                printf("Processo %d: já possui 4 paginas na MP, é necessario fazer LRU\n",j);
+                printf("Processo %d: já possui 4 paginas na MP\n",j);
                 int indiceNaMp = indiceDaPaginaMaisAntiga(j, tabela_de_paginas, memoria_principal);
 
                 //log
-                printf("LRU: Pagina %d vai para MS -> ", memoria_principal[indiceNaMp].idPagina);
+                printf("Pagina %d vai para MS -> ", memoria_principal[indiceNaMp].idPagina);
 
                 // tirando a pagina antiga da MP na tabela
                 tabela_de_paginas[memoria_principal[indiceNaMp].idProcesso][memoria_principal[indiceNaMp].idPagina].isInMP = 0;
@@ -364,7 +364,7 @@ int main( int argc, char *argv[ ] ){
     }
 
     // ----------------------------------------LRU infinito-----------------------------------
-    printf("Começando o LRU infinito\n");
+    
     while(true){
         for (int j = 0; j<20; j++){
             Pagina pagina = criaPaginaAleatoria(j);
@@ -408,11 +408,11 @@ int main( int argc, char *argv[ ] ){
 
             // fazendo LRU
             else{
-                printf("Processo %d: já possui 4 paginas na MP, é necessario fazer LRU\n",j);
+                printf("Processo %d: já possui 4 paginas na MP\n",j);
                 int indiceNaMp = indiceDaPaginaMaisAntiga(j, tabela_de_paginas, memoria_principal);
                 
                 //log
-                printf("LRU: Pagina %d vai para MS -> ", memoria_principal[indiceNaMp].idPagina);
+                printf("Pagina %d vai para MS -> ", memoria_principal[indiceNaMp].idPagina);
 
                 // tirando a pagina antiga da MP na tabela
                 tabela_de_paginas[memoria_principal[indiceNaMp].idProcesso][memoria_principal[indiceNaMp].idPagina].isInMP = 0;
